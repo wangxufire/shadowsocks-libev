@@ -1008,3 +1008,4 @@ void json_value_free (json_value * value)
    settings.mem_free = default_free;
    json_value_free_ex (&settings, value);
 }
+
