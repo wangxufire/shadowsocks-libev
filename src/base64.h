@@ -49,6 +49,6 @@ char *base64_encode(char *out, int out_size, const uint8_t *in, int in_size);
 /**
  * Calculate the output size needed to base64-encode x bytes.
  */
-#define BASE64_SIZE(x)  (((x) + 2) / 3 * 4 + 1)
+#define BASE64_SIZE(x)  (((x)+2) / 3 * 4 + 1)
 
 #endif /* BASE64_H */

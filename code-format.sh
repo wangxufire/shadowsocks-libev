@@ -11,7 +11,10 @@ function format() {
       echo "format directory $file"
       format "$file"
     else
-      if [ "${file##*.}" = "h" ] || [ "${file##*.}" = "c" ]; then
+      if ([ "${file%%.*}" != "base64" ] &&
+        [ "${file%%.*}" != "json" ] &&
+        [ "${file%%.*}" != "uthash" ]) &&
+        ([ "${file##*.}" = "h" ] || [ "${file##*.}" = "c" ]); then
         echo "format file $file"
         uncrustify -c "$root"/.uncrustify.cfg -l C --replace --no-backup "$file"
         rm ./*.uncrustify >/dev/null 2>&1
