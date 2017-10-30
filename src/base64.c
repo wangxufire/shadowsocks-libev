@@ -34,8 +34,7 @@
 #include "base64.h"
 
 /* ---------------- private code */
-static const uint8_t map2[] =
-{
+static const uint8_t map2[] = {
     0xff, 0xff, 0x3e, 0xff, 0xff, 0x34, 0x35, 0x36,
     0x37, 0x38, 0x39, 0x3a, 0x3b, 0x3c, 0x3d, 0xff,
     0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x01,
@@ -48,7 +47,8 @@ static const uint8_t map2[] =
     0x2c, 0x2d, 0x2e, 0x2f, 0x30, 0x31, 0x32, 0x33
 };
 
-int base64_decode(uint8_t *out, const char *in, int out_size)
+int
+base64_decode(uint8_t *out, const char *in, int out_size)
 {
     int i, v;
     uint8_t *dst = out;
@@ -70,18 +70,19 @@ int base64_decode(uint8_t *out, const char *in, int out_size)
 }
 
 /*****************************************************************************
-* b64_encode: Stolen from VLC's http.c.
-* Simplified by Michael.
-* Fixed edge cases and made it work from data (vs. strings) by Ryan.
-*****************************************************************************/
+ * b64_encode: Stolen from VLC's http.c.
+ * Simplified by Michael.
+ * Fixed edge cases and made it work from data (vs. strings) by Ryan.
+ *****************************************************************************/
 
-char *base64_encode(char *out, int out_size, const uint8_t *in, int in_size)
+char *
+base64_encode(char *out, int out_size, const uint8_t *in, int in_size)
 {
     static const char b64[] =
         "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
     char *ret, *dst;
-    unsigned i_bits = 0;
-    int i_shift = 0;
+    unsigned i_bits     = 0;
+    int i_shift         = 0;
     int bytes_remaining = in_size;
 
     if (in_size >= UINT_MAX / 4 ||
@@ -94,7 +95,7 @@ char *base64_encode(char *out, int out_size, const uint8_t *in, int in_size)
         i_shift += 8;
 
         do {
-            *dst++ = b64[(i_bits << 6 >> i_shift) & 0x3f];
+            *dst++   = b64[(i_bits << 6 >> i_shift) & 0x3f];
             i_shift -= 6;
         } while (i_shift > 6 || (bytes_remaining == 0 && i_shift > 0));
     }
