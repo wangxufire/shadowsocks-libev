@@ -1,0 +1,87 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "ss-local-launch",
+      "type": "cppdbg",
+      "request": "launch",
+      "cwd": "${workspaceRoot}/src",
+      "program": "${workspaceRoot}/src/ss-local",
+      "args": [
+        "-c",
+        "../.vscode/config.sample.json",
+        "-u"
+      ],
+      "stopAtEntry": false,
+      "environment": [],
+      "internalConsoleOptions": "openOnSessionStart",
+      "externalConsole": false,
+      "osx": {
+        "MIMode": "lldb"
+      },
+      "linux": {
+        "MIMode": "gdb"
+      },
+      "windows": {
+        "MIMode": "gdb"
+      }
+    },
+    {
+      "name": "ss-server-launch",
+      "type": "cppdbg",
+      "request": "launch",
+      "cwd": "${workspaceRoot}/src",
+      "program": "${workspaceRoot}/src/ss-server",
+      "args": [
+        "-c",
+        "../.vscode/config.sample.json",
+        "-u"
+      ],
+      "stopAtEntry": false,
+      "environment": [],
+      "internalConsoleOptions": "openOnSessionStart",
+      "externalConsole": false,
+      "osx": {
+        "MIMode": "lldb"
+      },
+      "linux": {
+        "MIMode": "gdb"
+      },
+      "windows": {
+        "MIMode": "gdb"
+      }
+    },
+    {
+      "name": "ss-local-attach",
+      "type": "cppdbg",
+      "request": "attach",
+      "program": "${workspaceRoot}/src/ss-local",
+      "processId": "${command:pickProcess}",
+      "osx": {
+        "MIMode": "lldb"
+      },
+      "linux": {
+        "MIMode": "gdb"
+      },
+      "windows": {
+        "MIMode": "gdb"
+      }
+    },
+    {
+      "name": "ss-server-attach",
+      "type": "cppdbg",
+      "request": "attach",
+      "program": "${workspaceRoot}/src/ss-server",
+      "processId": "${command:pickProcess}",
+      "osx": {
+        "MIMode": "lldb"
+      },
+      "linux": {
+        "MIMode": "gdb"
+      },
+      "windows": {
+        "MIMode": "gdb"
+      }
+    }
+  ]
+}
