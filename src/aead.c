@@ -650,9 +650,12 @@ aead_decrypt(buffer_t *ciphertext, cipher_ctx_t *cipher_ctx, size_t capacity)
         chunk->idx = 0;
         ciphertext->len = 0;
     } else {
-        brealloc(chunk,
-                 chunk->idx + chunk->len + ciphertext->len, capacity);
-        memcpy(chunk->data + chunk->idx + chunk->len,
+        if (chunk->idx > 0) {
+            memmove(chunk->data, chunk->data + chunk->idx, chunk->len);
+            chunk->idx = 0;
+        }
+        brealloc(chunk, chunk->len + ciphertext->len, capacity);
+        memcpy(chunk->data + chunk->len,
                ciphertext->data, ciphertext->len);
         chunk->len += ciphertext->len;
     }
