@@ -31,7 +31,7 @@ jobs:
       - name: Build
         run: |
           mkdir -p build && cd build
-          cmake .. -DCMAKE_BUILD_TYPE=Release -DWITH_STATIC=OFF
+          cmake .. -DCMAKE_BUILD_TYPE=Release
           make -j$(nproc 2>/dev/null || sysctl -n hw.ncpu)
 
       - name: Unit tests
