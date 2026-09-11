@@ -24,6 +24,8 @@ jobs:
           ctest --test-dir build -L 'unit|vendor' --output-on-failure --no-tests=error
       - name: Real TCP and UDP relay
         run: python3 tests/interop.py --self --bin build/bin
+      - name: Asynchronous hostname ACL bypass
+        run: python3 tests/async_dns_interop.py --bin build/bin
       - name: SIP003 transport and child cleanup
         if: matrix.minimal == 'OFF'
         run: python3 tests/interop.py --self --bin build/bin --plugin tests/sip003_fixture.py
@@ -35,6 +37,10 @@ jobs:
           cmake --build consumer
           ./consumer/consumer_static
           ./consumer/consumer_shared
+          cmake -S tests/consumer -B consumer-legacy -DSS_PACKAGE_NAME=shadowsocks-libev -DCMAKE_PREFIX_PATH="$PWD/relocated"
+          cmake --build consumer-legacy
+          ./consumer-legacy/consumer_static
+          ./consumer-legacy/consumer_shared
 
   windows:
     runs-on: windows-latest
@@ -59,11 +65,14 @@ jobs:
           ctest --test-dir build -L 'unit|vendor' --output-on-failure --no-tests=error
           objdump -p build/bin/ss-server.exe | sed -n '/DLL Name/p'
           python tests/interop.py --self --bin build/bin --isolate-windows-runtime
+          python tests/async_dns_interop.py --bin build/bin --isolate-windows-runtime
       - name: Installed consumers
         run: |
           cmake --install build --prefix "$PWD/install"
           cmake -S tests/consumer -B consumer -G Ninja -DCMAKE_PREFIX_PATH="$PWD/install"
           cmake --build consumer
+          cmake -S tests/consumer -B consumer-legacy -G Ninja -DSS_PACKAGE_NAME=shadowsocks-libev -DCMAKE_PREFIX_PATH="$PWD/install"
+          cmake --build consumer-legacy
       - name: Run installed consumers without toolchain DLLs
         shell: pwsh
         run: |
@@ -72,6 +81,10 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw "Static consumer failed: $LASTEXITCODE" }
           & ./consumer/consumer_shared.exe
           if ($LASTEXITCODE -ne 0) { throw "Shared consumer failed: $LASTEXITCODE" }
+          & ./consumer-legacy/consumer_static.exe
+          if ($LASTEXITCODE -ne 0) { throw "Legacy static consumer failed: $LASTEXITCODE" }
+          & ./consumer-legacy/consumer_shared.exe
+          if ($LASTEXITCODE -ne 0) { throw "Legacy shared consumer failed: $LASTEXITCODE" }
 
   static-macos:
     runs-on: macos-latest
@@ -95,6 +108,7 @@ jobs:
       - name: Exercise installed static programs
         run: |
           python3 tests/interop.py --self --bin relocated-static/bin
+          python3 tests/async_dns_interop.py --bin relocated-static/bin
           python3 tests/interop.py --self --bin relocated-static/bin --plugin tests/sip003_fixture.py
       - uses: actions/upload-artifact@v4
         with:
@@ -132,7 +146,9 @@ jobs:
       - name: Reject third-party DLL imports, including delay imports
         run: python tests/check_static_runtime.py relocated-static/bin/ss-*.exe consumer-static/consumer_static.exe
       - name: Exercise installed programs without toolchain DLLs
-        run: python tests/interop.py --self --bin relocated-static/bin --isolate-windows-runtime
+        run: |
+          python tests/interop.py --self --bin relocated-static/bin --isolate-windows-runtime
+          python tests/async_dns_interop.py --bin relocated-static/bin --isolate-windows-runtime
       - name: Run static consumer with only Windows system directories on PATH
         shell: pwsh
         run: |
@@ -171,6 +187,7 @@ jobs:
             cmake --build build --parallel 4
             ctest --test-dir build -L 'unit|vendor' --output-on-failure --no-tests=error
             python3 tests/interop.py --self --bin build/bin
+            python3 tests/async_dns_interop.py --bin build/bin
             cmake --install build --prefix "$PWD/install"
             cmake -S tests/consumer -B consumer -G Ninja -DCMAKE_PREFIX_PATH="$PWD/install"
             cmake --build consumer
@@ -182,7 +199,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - name: Source archive
-        run: python3 scripts/source_archive.py release/shadowsocks-libev.tar.gz
+        run: python3 scripts/source_archive.py release/shadowsocks-c.tar.gz
       - name: Prepare compiler image
         run: |
           printf 'FROM alpine:3.24\nRUN apk add --no-cache build-base cmake python3 linux-headers\n' > /tmp/ss-toolchain.Dockerfile
@@ -191,7 +208,7 @@ jobs:
         run: |
           docker run --rm --network none -v "$PWD/release:/release:ro" ss-toolchain sh -ec '
             mkdir /src
-            tar xzf /release/shadowsocks-libev.tar.gz -C /src --strip-components=1
+            tar xzf /release/shadowsocks-c.tar.gz -C /src --strip-components=1
             cmake -S /src -B /build -DCMAKE_DISABLE_FIND_PACKAGE_Python3=TRUE
             cmake --build /build --parallel 4
             ctest --test-dir /build -L "unit|vendor" --output-on-failure --no-tests=error

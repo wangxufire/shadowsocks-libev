@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.20)
 
-set(PROJECT_NAME shadowsocks-libev)
+set(PROJECT_NAME shadowsocks-c)
 set(RELEASE_DATE 2026-02-09)
 set(PROJECT_VERSION "3.3.6")
 set(PROJECT_DESC "a lightweight secured socks5 proxy")
@@ -98,6 +98,7 @@ endif()
 include(${PROJECT_SOURCE_DIR}/cmake/configure.cmake)
 configure_file(${PROJECT_SOURCE_DIR}/cmake/config.h.cmake ${PROJECT_BINARY_DIR}/src/config.h)
 include(cmake/ProjectOptions.cmake)
+ss_project_options(ss_ev)
 include_directories(${PROJECT_BINARY_DIR}/src)
 add_compile_definitions(HAVE_CONFIG_H)
 
