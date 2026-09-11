@@ -1,6 +1,6 @@
 # shadowsocks-c
 
-[![Build Status](https://travis-ci.com/shadowsocks/shadowsocks-libev.svg?branch=master)](https://travis-ci.com/shadowsocks/shadowsocks-libev) [![Snap Status](https://snapcraft.io/shadowsocks-libev/badge.svg)](https://snapcraft.io/shadowsocks-libev)
+[![Build](https://github.com/shadowsocks/shadowsocks-c/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/shadowsocks/shadowsocks-c/actions/workflows/build.yml) [![Tests](https://github.com/shadowsocks/shadowsocks-c/actions/workflows/tests.yml/badge.svg?branch=master)](https://github.com/shadowsocks/shadowsocks-c/actions/workflows/tests.yml) [![Portability](https://github.com/shadowsocks/shadowsocks-c/actions/workflows/portability.yml/badge.svg?branch=master)](https://github.com/shadowsocks/shadowsocks-c/actions/workflows/portability.yml)
 
 ## Intro
 
@@ -13,6 +13,41 @@ created by [@clowwindy](https://github.com/clowwindy), and maintained by
 
 Current version: 3.3.6 | [Changelog](debian/changelog)
 
+## Project history and rename
+
+This repository began as **shadowsocks-libev**, the lightweight C implementation
+of Shadowsocks built around the libev event loop. It later entered a bug-fix-only
+maintenance phase, with new development directed toward
+[shadowsocks-rust](https://github.com/shadowsocks/shadowsocks-rust).
+
+In September 2026, the C implementation was modernized with a focus on
+self-contained builds and portability. [The build modernization](https://github.com/shadowsocks/shadowsocks-c/pull/3050)
+bundled pinned dependency sources, removed several external dependencies, and
+added static-build validation across platforms.
+[The subsequent migration](https://github.com/shadowsocks/shadowsocks-c/pull/3051)
+replaced libev with libuv, added Windows IOCP and macOS kqueue support, expanded
+asynchronous runtime DNS coverage, and strengthened CI lint checks.
+
+The project and GitHub repository were renamed **shadowsocks-c** to reflect its
+continuing identity as a pure C implementation. This repository retains the
+shadowsocks-libev commit history and releases. The canonical repository is now
+[shadowsocks/shadowsocks-c](https://github.com/shadowsocks/shadowsocks-c).
+
+### Compatibility with shadowsocks-libev
+
+- Commands such as `ss-local` and `ss-server`, the `shadowsocks.h` API, and the
+  embedding library ABI remain compatible.
+- New builds provide `libshadowsocks-c` and the CMake/pkg-config package
+  `shadowsocks-c`. Legacy library filenames and the `shadowsocks-libev` package
+  lookup name remain available as compatibility aliases.
+- Existing configuration paths, distribution package names, and service names
+  are retained. References to `shadowsocks-libev` in the installation examples
+  below refer to those existing integrations.
+
+See [the modernization notes](docs/modernization.md) for build options and
+platform support, and [the performance measurements](docs/performance.md) for
+measured tradeoffs.
+
 ## Features
 
 shadowsocks-c is written in pure C and depends on [libuv](https://libuv.org/). It's designed
@@ -21,34 +56,55 @@ to be a lightweight implementation of shadowsocks protocol, in order to keep the
 For a full list of feature comparison between different versions of shadowsocks,
 refer to the [Wiki page](https://github.com/shadowsocks/shadowsocks/wiki/Feature-Comparison-across-Different-Versions).
 
-The project is now **shadowsocks-c**. Commands (`ss-local`, `ss-server`, etc.)
-and the `shadowsocks.h` API remain compatible. New builds produce
-`libshadowsocks-c` with CMake/pkg-config package `shadowsocks-c`; legacy library
-filenames and package lookup names remain available as compatibility aliases.
-Existing configuration paths, distro package names and service names are retained.
-Repository links below still point to the current GitHub repository.
-
 ## Quick Start
 
-Snap is the recommended way to install the latest binaries.
+### Docker (recommended)
 
-### Install snap core
+Docker is the recommended way to run a server. The image contains the bundled,
+fully static C binaries and supports Linux AMD64 and ARM64, including Linux
+containers under Docker Desktop on macOS and Windows.
 
-https://snapcraft.io/core
+Create `config.json` and replace the example password with your own:
 
-### Install from snapcraft.io
-
-Stable channel:
-
-```bash
-sudo snap install shadowsocks-libev
+```json
+{
+  "server": "0.0.0.0",
+  "server_port": 8388,
+  "password": "replace-with-a-long-random-password",
+  "method": "aes-256-gcm",
+  "mode": "tcp_and_udp"
+}
 ```
 
-Edge channel:
+In a POSIX shell, start the server with the configuration mounted read-only:
 
-```bash
-sudo snap install shadowsocks-libev --edge
+```sh
+docker pull ghcr.io/shadowsocks/shadowsocks-c:latest
+docker run -d --name shadowsocks-c --restart unless-stopped \
+  --user "$(id -u):$(id -g)" --read-only --cap-drop=ALL \
+  --security-opt=no-new-privileges:true \
+  -p 8388:8388/tcp -p 8388:8388/udp \
+  --mount type=bind,src="$PWD/config.json",dst=/etc/shadowsocks-c/config.json,readonly \
+  ghcr.io/shadowsocks/shadowsocks-c:latest
 ```
+
+Using your user ID lets the container read a configuration file owned by you.
+View logs with `docker logs shadowsocks-c`; stop it with `docker stop shadowsocks-c`.
+Configure your Shadowsocks client with the server address, port, password and
+method above.
+
+`latest` follows `master`; version tags and `sha-<full-commit>` tags identify
+specific published builds. If the registry image is not yet available, build it
+from this checkout with the same name, then run the command above without pulling:
+
+```sh
+docker build -f docker/static/Dockerfile --target runtime \
+  -t ghcr.io/shadowsocks/shadowsocks-c:latest .
+```
+
+See [Docker image details](docker/static/README.md) for publishing, updates,
+client mode and build options. Existing Snap packages still use the
+`shadowsocks-libev` name and may predate this modernization.
 
 ## Installation
 
@@ -288,13 +344,11 @@ The historical Autotools scripts in `docker/mingw` are superseded by this build.
 
 ### Docker
 
-As you expect, simply pull the image and run.
-```
-docker pull shadowsocks/shadowsocks-libev
-docker run -e PASSWORD=<password> -p<server-port>:8388 -p<server-port>:8388/udp -d shadowsocks/shadowsocks-libev
-```
-
-More information about the image can be found [here](docker/alpine/README.md).
+Use the [recommended Docker installation](#docker-recommended) above.
+The image is `ghcr.io/shadowsocks/shadowsocks-c`; it accepts a JSON configuration
+file or the normal `ss-server` arguments. The historical `PASSWORD` environment
+variable wrapper belongs to the older Docker Hub image and is not used here.
+See [image and build details](docker/static/README.md).
 
 ## Usage
 
