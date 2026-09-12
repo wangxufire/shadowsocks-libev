@@ -1838,19 +1838,64 @@ main(int argc, char **argv)
     memset(&local_addr_v4, 0, sizeof(struct sockaddr_storage));
     memset(&local_addr_v6, 0, sizeof(struct sockaddr_storage));
 
-    /* CLI_DOC
--s <server_host>::
+/* [cli_short_s]
+\par `-s <server_host>`
 Set a server listening hostname or IP address. May be repeated.
+[cli_short_s] */
 
--l <local_port>::
-Accepted for compatibility but ignored by this program; it does not configure a local listener.
-
--p <server_port>::
+/* [cli_short_p]
+\par `-p <server_port>`
 Set the server listening port.
+[cli_short_p] */
 
--b <local_address>::
+/* [cli_short_l]
+\par `-l <local_port>`
+Accepted for compatibility but ignored by this program; it does not configure a local listener.
+[cli_short_l] */
+
+/* [cli_short_b]
+\par `-b <local_address>`
 Set the local address for outbound connections to destination servers.
-    */
+[cli_short_b] */
+
+/* [cli-options]
+\snippet{doc} utils.c cli_short_f
+\snippet{doc} server.c cli_short_s
+\snippet{doc} server.c cli_short_p
+\snippet{doc} server.c cli_short_l
+\snippet{doc} utils.c cli_short_k
+\snippet{doc} utils.c cli_short_t
+\snippet{doc} utils.c cli_short_m
+\snippet{doc} server.c cli_short_b
+\snippet{doc} utils.c cli_short_c
+\snippet{doc} utils.c cli_short_i
+\snippet{doc} utils.c cli_short_d
+\snippet{doc} utils.c cli_short_a
+\snippet{doc} utils.c cli_short_n
+\snippet{doc} utils.c cli_short_h
+\snippet{doc} utils.c cli_short_u
+\snippet{doc} utils.c cli_short_U
+\snippet{doc} utils.c cli_short_v
+\snippet{doc} utils.c cli_short_6
+\snippet{doc} utils.c cli_short_A
+\snippet{doc} utils.c cli_long_fast_open
+\snippet{doc} utils.c cli_long_reuse_port
+\snippet{doc} utils.c cli_long_tcp_incoming_sndbuf
+\snippet{doc} utils.c cli_long_tcp_incoming_rcvbuf
+\snippet{doc} utils.c cli_long_tcp_outgoing_sndbuf
+\snippet{doc} utils.c cli_long_tcp_outgoing_rcvbuf
+\snippet{doc} utils.c cli_long_no_delay
+\snippet{doc} utils.c cli_long_acl
+\snippet{doc} utils.c cli_long_manager_address
+\snippet{doc} utils.c cli_long_mtu
+\snippet{doc} utils.c cli_long_help
+\snippet{doc} utils.c cli_long_plugin
+\snippet{doc} utils.c cli_long_plugin_opts
+\snippet{doc} utils.c cli_long_password
+\snippet{doc} utils.c cli_long_key
+\snippet{doc} utils.c cli_long_mptcp
+\snippet{doc} utils.c cli_long_nftables_sets
+[cli-options] */
     static struct option long_options[] = {
         { "fast-open",       no_argument,       NULL, GETOPT_VAL_FAST_OPEN   },
         { "reuse-port",      no_argument,       NULL, GETOPT_VAL_REUSE_PORT  },

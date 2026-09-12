@@ -26,27 +26,10 @@ jobs:
         run: actionlint -shellcheck= -pyflakes=
       - name: Lint Python scripts and tests
         run: ruff check --select E9,F63,F7,F82 tests scripts
-      - name: Check generated CLI documentation
+      - name: Check Doxygen CLI documentation
         run: |
-          python3 scripts/gen_cli_docs.py --check
-          python3 -m unittest discover -s tests -p test_gen_cli_docs.py
-
-  docs:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v6
-      - name: Install documentation tools
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends asciidoc xmlto docbook-xml docbook-xsl
-      - name: Build man pages and HTML from source
-        run: |
-          cmake -S . -B build-docs -DWITH_DOC_MAN=ON -DWITH_DOC_HTML=ON
-          cmake --build build-docs --target doc-man doc-html --parallel 2
-          test -s build-docs/man/ss-local.1
-          test -s build-docs/man/ss-nat.1
-          test -s build-docs/man/shadowsocks-c.8
-          test -s build-docs/html/ss-local.html
+          python3 scripts/check_cli_docs.py
+          python3 -m unittest discover -s tests -p test_cli_docs.py
 
   tests:
     strategy:
