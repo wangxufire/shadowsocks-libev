@@ -13,6 +13,11 @@ created by [@clowwindy](https://github.com/clowwindy), and maintained by
 
 Current version: 3.3.6 | [Changelog](debian/changelog)
 
+## Community
+
+Everyone participating in this project is expected to follow our
+[Code of Conduct](CODE_OF_CONDUCT.md).
+
 ## Project history and rename
 
 This repository began as **shadowsocks-libev**, the lightweight C implementation
