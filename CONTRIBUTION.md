@@ -123,7 +123,8 @@ will review the implementation and relevant CI results before merging.
 
 The `documentation` workflow builds and validates Doxygen output on pull requests.
 After a push to `master`, it publishes `build-docs/html` through GitHub Pages using
-GitHub Actions. You can also run the workflow manually on `master` to redeploy.
+GitHub Actions, including a downloadable `man-pages.tar.gz` archive. You can also
+run the workflow manually on `master` to redeploy.
 Deployment is limited to the canonical repository's `master` branch; pull requests
 and forks only validate the documentation. The `github-pages` environment records
 the deployed site URL and deployment history.

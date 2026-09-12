@@ -10,3 +10,7 @@ source documentation.
 - \ref ss-manager "ss-manager: multi-user management"
 - \ref ss-nat "ss-nat: NAT setup helper"
 - \ref shadowsocks-c "Configuration, examples, and management protocol"
+
+[Download the generated man pages](https://shadowsocks.github.io/shadowsocks-c/man-pages.tar.gz)
+from the published site. The archive includes the six CLI manuals and both
+overview lookup names.
