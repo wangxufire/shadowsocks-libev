@@ -168,6 +168,52 @@ EOF
 	return $?
 }
 
+# CLI_DOC
+# -s <server_ip>::
+# IP address of shadowsocks remote server
+#
+# -l <local_port>::
+# Port number of shadowsocks local server
+#
+# -S <server_ip>::
+# IP address of shadowsocks remote UDP server
+#
+# -L <local_port>::
+# Port number of shadowsocks local UDP server
+#
+# -i <ip_list_file>::
+# a file whose content is bypassed ip list
+#
+# -a <lan_ips>::
+# LAN IP of access control, need a prefix to define access control mode
+#
+# -b <wan_ips>::
+# WAN IP of will be bypassed
+#
+# -w <wan_ips>::
+# WAN IP of will be forwarded
+#
+# -e <extra_options>::
+# Extra options for iptables
+#
+# -o::
+# Apply the rules to the OUTPUT chain
+#
+# -u::
+# Enable udprelay mode, TPROXY is required
+#
+# -U::
+# Enable udprelay mode, using different IP and ports for TCP and UDP
+#
+# -f::
+# Flush the rules
+#
+# -h::
+# Show this help message and exit
+#
+# -I <interface>::
+# Set the LAN interface for NAT rules. The default is eth0.
+# END_CLI_DOC
 while getopts ":s:l:S:L:i:I:e:a:b:w:ouUfh" arg; do
 	case "$arg" in
 		s)

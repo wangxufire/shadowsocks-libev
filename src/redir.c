@@ -922,6 +922,10 @@ main(int argc, char **argv)
 
     memset(remote_addr, 0, sizeof(ss_addr_t) * MAX_REMOTE_NUM);
 
+    /* CLI_DOC
+-u::
+Enable UDP relay. Requires Linux TPROXY support and permission to configure transparent proxying.
+    */
     static struct option long_options[] = {
         { "fast-open",   no_argument,       NULL, GETOPT_VAL_FAST_OPEN   },
         { "mtu",         required_argument, NULL, GETOPT_VAL_MTU         },

@@ -1271,6 +1271,16 @@ main(int argc, char **argv)
 
     jconf_t *conf = NULL;
 
+    /* CLI_DOC
+-s <server_host>::
+Set a server listening hostname or IP address. May be repeated.
+
+-l <local_port>::
+Accepted for compatibility but ignored by this program; it does not configure a local listener.
+
+-c <config_file>::
+Use a JSON configuration file. The "port_password" field can start multiple ss-server instances.
+    */
     static struct option long_options[] = {
         { "fast-open",       no_argument,       NULL, GETOPT_VAL_FAST_OPEN   },
         { "no-delay",        no_argument,       NULL, GETOPT_VAL_NODELAY     },

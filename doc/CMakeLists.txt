@@ -10,18 +10,53 @@ if(WITH_DOC_MAN AND NOT XMLTO_EXECUTABLE)
     message(FATAL_ERROR "Manpage generation requires xmlto")
 endif()
 
-# NOTE For brew user, we have to setup this env var. see `brew info asciidoc'
+# Homebrew catalogs are outside libxml's default search path. Respect an
+# explicitly configured catalog and support both Apple Silicon and Intel Macs.
 set(XMLTO_ENV)
-set(XMLTO_CATALOG_DIR_MACOS /usr/local/etc/xml/catalog)
-if (EXISTS ${XMLTO_CATALOG_DIR_MACOS})
-    set(XMLTO_ENV XML_CATALOG_FILES=${XMLTO_CATALOG_DIR_MACOS})
-    message(STATUS "Detect xmlto catalog dir ${XMLTO_CATALOG_DIR_MACOS}")
-endif ()
+if(APPLE AND "$ENV{XML_CATALOG_FILES}" STREQUAL "")
+    foreach(catalog /opt/homebrew/etc/xml/catalog /usr/local/etc/xml/catalog)
+        if(EXISTS ${catalog})
+            set(XMLTO_ENV XML_CATALOG_FILES=${catalog})
+            break()
+        endif()
+    endforeach()
+endif()
 
 set(CMAKE_MANPAGE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/man)
 set(CMAKE_HTML_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/html)
 
 set(DOC_DIR ${PROJECT_SOURCE_DIR}/doc)
+find_package(Python3 COMPONENTS Interpreter QUIET)
+if((WITH_DOC_MAN OR WITH_DOC_HTML) AND NOT Python3_Interpreter_FOUND)
+    message(FATAL_ERROR "Documentation generation requires Python 3")
+endif()
+
+# Read source declarations, never execute target binaries (including cross builds).
+# Keep checked-in pages for readers and for builds with documentation disabled.
+set(CLI_DOC_DIR ${DOC_DIR})
+set(CLI_DOC_FILES)
+if(Python3_Interpreter_FOUND)
+    set(CLI_DOC_DIR ${CMAKE_CURRENT_BINARY_DIR}/generated)
+    set(CLI_DOC_INPUTS ${PROJECT_SOURCE_DIR}/src/utils.c
+        ${PROJECT_SOURCE_DIR}/src/aead.c ${PROJECT_SOURCE_DIR}/src/stream.c
+        ${PROJECT_SOURCE_DIR}/src/ss-nat)
+    foreach(module local server tunnel redir manager)
+        list(APPEND CLI_DOC_INPUTS ${PROJECT_SOURCE_DIR}/src/${module}.c)
+    endforeach()
+    foreach(name ss-local ss-server ss-tunnel ss-redir ss-manager ss-nat shadowsocks-c)
+        list(APPEND CLI_DOC_INPUTS ${DOC_DIR}/${name}.asciidoc)
+        list(APPEND CLI_DOC_FILES ${CLI_DOC_DIR}/${name}.asciidoc)
+    endforeach()
+    add_custom_command(OUTPUT ${CLI_DOC_FILES}
+        COMMAND ${Python3_EXECUTABLE} ${PROJECT_SOURCE_DIR}/scripts/gen_cli_docs.py
+                --output-dir ${CLI_DOC_DIR}
+        COMMAND ${CMAKE_COMMAND} -E touch ${CLI_DOC_FILES}
+        DEPENDS ${CLI_DOC_INPUTS} ${PROJECT_SOURCE_DIR}/scripts/gen_cli_docs.py
+        COMMENT "Generating CLI documentation from source"
+        VERBATIM)
+    add_custom_target(doc-cli DEPENDS ${CLI_DOC_FILES})
+endif()
+
 set(XMLTO_OPTS -m ${DOC_DIR}/manpage-normal.xsl -m ${DOC_DIR}/manpage-bold-literal.xsl man)
 set(ASCIIDOC_XML_OPTS -b docbook -d manpage -f ${DOC_DIR}/asciidoc.conf -aversion=${PROJECT_VERSION})
 set(ASCIIDOC_HTML_OPTS -b html4 -d article -f ${DOC_DIR}/asciidoc.conf -aversion=${PROJECT_VERSION})
@@ -38,14 +73,15 @@ foreach (manfile IN LISTS MAN_NAMES)
 
     set(manfile ${CMAKE_MANPAGE_OUTPUT_DIRECTORY}/${manfile})
     set(htmlfile ${CMAKE_HTML_OUTPUT_DIRECTORY}/${htmlfile})
-    set(docfile ${DOC_DIR}/${docfile})
+    set(docfile ${CLI_DOC_DIR}/${docfile})
 
     add_custom_command(OUTPUT ${manfile}
             COMMAND ${ASCIIDOC_EXECUTABLE} ${ASCIIDOC_XML_OPTS} -o ${xmlfile} ${docfile}
             COMMAND ${CMAKE_COMMAND} -E env ${XMLTO_ENV} ${XMLTO_EXECUTABLE} ${XMLTO_OPTS} ${xmlfile}
             # After we built the manpage, the xmlfile is nolongger needed
             COMMAND ${CMAKE_COMMAND} -E remove ${xmlfile}
-            DEPENDS ${docfile}
+            DEPENDS ${docfile} ${DOC_DIR}/asciidoc.conf
+                    ${DOC_DIR}/manpage-normal.xsl ${DOC_DIR}/manpage-bold-literal.xsl
             WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/man
             COMMENT "Building manpage ${manfile}"
             VERBATIM)
@@ -53,7 +89,7 @@ foreach (manfile IN LISTS MAN_NAMES)
 
     add_custom_command(OUTPUT ${htmlfile}
             COMMAND ${ASCIIDOC_EXECUTABLE} ${ASCIIDOC_HTML_OPTS} -o ${htmlfile} ${docfile}
-            DEPENDS ${docfile}
+            DEPENDS ${docfile} ${DOC_DIR}/asciidoc.conf
             WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/html
             COMMENT "Building htmlfile ${htmlfile}"
             VERBATIM)
@@ -62,6 +98,10 @@ endforeach ()
 
 add_custom_target(doc-man ALL DEPENDS ${MAN_FILES})
 add_custom_target(doc-html ALL DEPENDS ${HTML_FILES})
+if(TARGET doc-cli)
+    add_dependencies(doc-man doc-cli)
+    add_dependencies(doc-html doc-cli)
+endif()
 
 
 if (NOT WITH_DOC_MAN)
