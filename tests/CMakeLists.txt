@@ -214,3 +214,13 @@ ss_add_test(test_resolv_async
     "test_resolv_async.c;${PROJECT_SOURCE_DIR}/src/resolv.c;${PROJECT_SOURCE_DIR}/src/utils.c"
     "ss_ev;ss_cares;ss_sodium")
 set_tests_properties(test_resolv_async PROPERTIES TIMEOUT 30)
+
+if(SS_BUILD_EXECUTABLES AND NOT CMAKE_CROSSCOMPILING)
+    find_package(Python3 COMPONENTS Interpreter QUIET)
+    if(Python3_Interpreter_FOUND)
+        add_test(NAME test_cli
+            COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/test_cli.py
+                    --bin-dir ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+        set_tests_properties(test_cli PROPERTIES LABELS "integration" TIMEOUT 60)
+    endif()
+endif()

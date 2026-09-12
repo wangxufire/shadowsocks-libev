@@ -51,7 +51,7 @@ def options(source, shell=False):
     if len(tables) != 1:
         raise ValueError("Expected one long_options table")
     table = re.sub(r'^\s*#.*$', '', tables[0], flags=re.M)
-    entry = re.compile(r'\{\s*"([a-z0-9-]+)"\s*,\s*(no_argument|required_argument)\s*,\s*NULL\s*,\s*GETOPT_VAL_[A-Z0-9_]+\s*\}\s*,', re.S)
+    entry = re.compile(r'\{\s*"([a-z0-9-]+)"\s*,\s*(no_argument|required_argument)\s*,\s*NULL\s*,\s*(?:GETOPT_VAL_[A-Z0-9_]+|\x27[A-Za-z0-9]\x27)\s*\}\s*,', re.S)
     for match in entry.finditer(table):
         flag, argument = match.groups()
         if '--' + flag in result:

@@ -927,6 +927,81 @@ main(int argc, char **argv)
 Enable UDP relay. Requires Linux TPROXY support and permission to configure transparent proxying.
 [cli_short_u] */
 
+/* [cli_long_config]
+\par `--config <config_file>`
+Read JSON configuration. See the CLI conventions for precedence and default-value behavior. Short alias: `-c`.
+[cli_long_config] */
+
+/* [cli_long_cipher]
+\par `--cipher <encrypt_method>`
+Select the encryption cipher. See `-m` for supported cipher names and key requirements. Short alias: `-m`.
+[cli_long_cipher] */
+
+/* [cli_long_timeout]
+\par `--timeout <timeout>`
+Same behavior as `-t`; see that option for details. Short alias: `-t`.
+[cli_long_timeout] */
+
+/* [cli_long_user]
+\par `--user <user_name>`
+Same behavior as `-a`; see that option for details. Short alias: `-a`.
+[cli_long_user] */
+
+/* [cli_long_pid_file]
+\par `--pid-file <pid_file>`
+Same behavior as `-f`; see that option for details. Short alias: `-f`.
+[cli_long_pid_file] */
+
+/* [cli_long_nofile]
+\par `--nofile <number>`
+Same behavior as `-n`; see that option for details. Short alias: `-n`.
+[cli_long_nofile] */
+
+/* [cli_long_udp]
+\par `--udp`
+Enable both TCP and UDP relay, overriding the configured mode. Short alias: `-u`.
+[cli_long_udp] */
+
+/* [cli_long_udp_only]
+\par `--udp-only`
+Enable UDP relay only, overriding the configured mode. Short alias: `-U`.
+[cli_long_udp_only] */
+
+/* [cli_long_ipv6_first]
+\par `--ipv6-first`
+Prefer IPv6 DNS results; overrides configuration. This does not restrict connections to IPv6. Short alias: `-6`.
+[cli_long_ipv6_first] */
+
+/* [cli_long_verbose]
+\par `--verbose`
+Same behavior as `-v`; see that option for details. Short alias: `-v`.
+[cli_long_verbose] */
+
+/* [cli_long_server]
+\par `--server <server_host>`
+Set a remote Shadowsocks server hostname or IP address; may be repeated. Short alias: `-s`.
+[cli_long_server] */
+
+/* [cli_long_server_port]
+\par `--server-port <server_port>`
+Set the remote Shadowsocks server port. Short alias: `-p`.
+[cli_long_server_port] */
+
+/* [cli_long_listen_address]
+\par `--listen-address <local_address>`
+Set the listening address. Server and manager addresses may be repeated. Short alias: `-b`.
+[cli_long_listen_address] */
+
+/* [cli_long_listen_port]
+\par `--listen-port <local_port>`
+Set the listening port. Short alias: `-l`.
+[cli_long_listen_port] */
+
+/* [cli_long_tproxy]
+\par `--tproxy`
+Same behavior as `-T`; see that option for details. Short alias: `-T`.
+[cli_long_tproxy] */
+
 /* [cli-options]
 \snippet{doc} utils.c cli_short_f
 \snippet{doc} utils.c cli_short_s
@@ -946,6 +1021,24 @@ Enable UDP relay. Requires Linux TPROXY support and permission to configure tran
 \snippet{doc} utils.c cli_short_v
 \snippet{doc} utils.c cli_short_6
 \snippet{doc} utils.c cli_short_A
+\snippet{doc} redir.c cli_long_config
+\snippet{doc} redir.c cli_long_cipher
+\snippet{doc} redir.c cli_long_timeout
+\snippet{doc} redir.c cli_long_user
+\snippet{doc} redir.c cli_long_pid_file
+\snippet{doc} redir.c cli_long_nofile
+\snippet{doc} redir.c cli_long_udp
+\snippet{doc} redir.c cli_long_udp_only
+\snippet{doc} redir.c cli_long_ipv6_first
+\snippet{doc} redir.c cli_long_verbose
+\snippet{doc} redir.c cli_long_server
+\snippet{doc} redir.c cli_long_server_port
+\snippet{doc} redir.c cli_long_listen_address
+\snippet{doc} redir.c cli_long_listen_port
+\snippet{doc} redir.c cli_long_tproxy
+\snippet{doc} utils.c cli_long_version
+\snippet{doc} utils.c cli_long_tcp_only
+\snippet{doc} utils.c cli_long_ipv4_first
 \snippet{doc} utils.c cli_long_fast_open
 \snippet{doc} utils.c cli_long_mtu
 \snippet{doc} utils.c cli_long_mptcp
@@ -962,6 +1055,24 @@ Enable UDP relay. Requires Linux TPROXY support and permission to configure tran
 \snippet{doc} utils.c cli_long_help
 [cli-options] */
     static struct option long_options[] = {
+        { "config", required_argument, NULL, 'c' },
+        { "cipher", required_argument, NULL, 'm' },
+        { "timeout", required_argument, NULL, 't' },
+        { "user", required_argument, NULL, 'a' },
+        { "pid-file", required_argument, NULL, 'f' },
+        { "nofile", required_argument, NULL, 'n' },
+        { "udp", no_argument, NULL, 'u' },
+        { "udp-only", no_argument, NULL, 'U' },
+        { "ipv6-first", no_argument, NULL, '6' },
+        { "verbose", no_argument, NULL, 'v' },
+        { "server", required_argument, NULL, 's' },
+        { "server-port", required_argument, NULL, 'p' },
+        { "listen-address", required_argument, NULL, 'b' },
+        { "listen-port", required_argument, NULL, 'l' },
+        { "tproxy", no_argument, NULL, 'T' },
+        { "version", no_argument, NULL, GETOPT_VAL_VERSION },
+        { "tcp-only", no_argument, NULL, GETOPT_VAL_TCP_ONLY },
+        { "ipv4-first", no_argument, NULL, GETOPT_VAL_IPV4_FIRST },
         { "fast-open",   no_argument,       NULL, GETOPT_VAL_FAST_OPEN   },
         { "mtu",         required_argument, NULL, GETOPT_VAL_MTU         },
         { "mptcp",       no_argument,       NULL, GETOPT_VAL_MPTCP       },
@@ -979,19 +1090,32 @@ Enable UDP relay. Requires Linux TPROXY support and permission to configure tran
         { NULL,          0,                 NULL, 0                      }
     };
 
+    int mode_set = 0;
+    int ipv6first_set = 0;
     opterr = 0;
 
     USE_TTY();
 
-    while ((c = getopt_long(argc, argv, "f:s:p:l:k:t:m:c:b:a:n:huUTv6A",
+    while ((c = getopt_long(argc, argv, ":f:s:p:l:k:t:m:c:b:a:n:huUTv6A",
                             long_options, NULL)) != -1) {
         switch (c) {
+        case GETOPT_VAL_VERSION:
+            cli_version();
+            exit(EXIT_SUCCESS);
+        case GETOPT_VAL_TCP_ONLY:
+            mode = TCP_ONLY;
+            mode_set = 1;
+            break;
+        case GETOPT_VAL_IPV4_FIRST:
+            ipv6first = 0;
+            ipv6first_set = 1;
+            break;
         case GETOPT_VAL_FAST_OPEN:
             fast_open = 1;
             break;
         case GETOPT_VAL_MTU:
             if (ss_parse_int(optarg, 0, INT_MAX, &mtu) == -1) {
-                FATAL("invalid MTU");
+                cli_error("invalid MTU", c, NULL);
             }
             LOGI("set MTU to %d", mtu);
             break;
@@ -1018,22 +1142,22 @@ Enable UDP relay. Requires Linux TPROXY support and permission to configure tran
             break;
         case GETOPT_VAL_TCP_INCOMING_SNDBUF:
             if (ss_parse_int(optarg, 0, INT_MAX, &tcp_incoming_sndbuf) == -1) {
-                FATAL("invalid TCP incoming send buffer size");
+                cli_error("invalid TCP incoming send buffer size", c, NULL);
             }
             break;
         case GETOPT_VAL_TCP_INCOMING_RCVBUF:
             if (ss_parse_int(optarg, 0, INT_MAX, &tcp_incoming_rcvbuf) == -1) {
-                FATAL("invalid TCP incoming receive buffer size");
+                cli_error("invalid TCP incoming receive buffer size", c, NULL);
             }
             break;
         case GETOPT_VAL_TCP_OUTGOING_SNDBUF:
             if (ss_parse_int(optarg, 0, INT_MAX, &tcp_outgoing_sndbuf) == -1) {
-                FATAL("invalid TCP outgoing send buffer size");
+                cli_error("invalid TCP outgoing send buffer size", c, NULL);
             }
             break;
         case GETOPT_VAL_TCP_OUTGOING_RCVBUF:
             if (ss_parse_int(optarg, 0, INT_MAX, &tcp_outgoing_rcvbuf) == -1) {
-                FATAL("invalid TCP outgoing receive buffer size");
+                cli_error("invalid TCP outgoing receive buffer size", c, NULL);
             }
             break;
         case 's':
@@ -1042,9 +1166,19 @@ Enable UDP relay. Requires Linux TPROXY support and permission to configure tran
             }
             break;
         case 'p':
+            {
+                uint16_t checked_port;
+                if (ss_parse_uint16_port(optarg, &checked_port) != 0)
+                    cli_error("port must be an integer from 1 to 65535", c, NULL);
+            }
             remote_port = optarg;
             break;
         case 'l':
+            {
+                uint16_t checked_port;
+                if (ss_parse_uint16_port(optarg, &checked_port) != 0)
+                    cli_error("port must be an integer from 1 to 65535", c, NULL);
+            }
             local_port = optarg;
             break;
         case GETOPT_VAL_PASSWORD:
@@ -1056,6 +1190,11 @@ Enable UDP relay. Requires Linux TPROXY support and permission to configure tran
             pid_path  = optarg;
             break;
         case 't':
+            {
+                int checked_timeout;
+                if (ss_parse_int(optarg, 1, INT_MAX, &checked_timeout) != 0)
+                    cli_error("timeout must be a positive integer", c, NULL);
+            }
             timeout = optarg;
             break;
         case 'm':
@@ -1073,14 +1212,16 @@ Enable UDP relay. Requires Linux TPROXY support and permission to configure tran
 #ifdef HAVE_SETRLIMIT
         case 'n':
             if (ss_parse_int(optarg, 0, INT_MAX, &nofile) == -1) {
-                FATAL("invalid nofile");
+                cli_error("invalid nofile", c, NULL);
             }
             break;
 #endif
         case 'u':
+            mode_set = 1;
             mode = TCP_AND_UDP;
             break;
         case 'U':
+            mode_set = 1;
             mode = UDP_ONLY;
             break;
         case 'T':
@@ -1094,22 +1235,26 @@ Enable UDP relay. Requires Linux TPROXY support and permission to configure tran
             usage();
             exit(EXIT_SUCCESS);
         case '6':
+            ipv6first_set = 1;
             ipv6first = 1;
             break;
         case 'A':
-            FATAL("One time auth has been deprecated. Try AEAD ciphers instead.");
+            cli_error("one-time authentication was removed; use an AEAD cipher", 'A', NULL);
+            break;
+        case ':':
+            cli_error("missing required argument for option", optopt, argv[optind - 1]);
             break;
         case '?':
-            // The option character is not recognized.
-            LOGE("Unrecognized option: %s", optarg);
-            opterr = 1;
+            cli_error("unrecognized or invalid option", optopt, argv[optind - 1]);
+            break;
+        default:
+            cli_error("option is unsupported on this platform", c, NULL);
             break;
         }
     }
 
-    if (opterr) {
-        usage();
-        exit(EXIT_FAILURE);
+    if (optind < argc) {
+        cli_error("unexpected positional argument", 0, NULL);
     }
 
     if (argc == 1) {
@@ -1155,7 +1300,7 @@ Enable UDP relay. Requires Linux TPROXY support and permission to configure tran
         if (plugin_opts == NULL) {
             plugin_opts = conf->plugin_opts;
         }
-        if (mode == TCP_ONLY) {
+        if (!mode_set) {
             mode = conf->mode;
         }
         if (tcp_tproxy == 0) {
@@ -1193,7 +1338,7 @@ Enable UDP relay. Requires Linux TPROXY support and permission to configure tran
             nofile = conf->nofile;
         }
 #endif
-        if (ipv6first == 0) {
+        if (!ipv6first_set) {
             ipv6first = conf->ipv6_first;
         }
         dscp_num = conf->dscp_num;
