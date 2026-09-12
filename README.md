@@ -15,6 +15,9 @@ Current version: 3.3.6 | [Changelog](debian/changelog)
 
 ## Community
 
+See the [contribution guide](CONTRIBUTION.md) for development setup, testing,
+and pull request guidance.
+
 Everyone participating in this project is expected to follow our
 [Code of Conduct](CODE_OF_CONDUCT.md).
 
