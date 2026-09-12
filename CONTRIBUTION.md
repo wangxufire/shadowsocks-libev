@@ -73,6 +73,38 @@ unless a change has been discussed. For bundled dependency updates, follow
 [the update procedure](third_party/README.md) and preserve upstream licenses and
 notices.
 
+## CLI and manual documentation
+
+The SYNOPSIS and OPTIONS sections of the manual pages are generated from the
+literal `getopt_long` declarations in `src/{local,server,tunnel,redir,manager}.c`
+and the `getopts` declaration in `src/ss-nat`. Descriptions and argument names live
+in `CLI_DOC` source comments: common C options in `src/utils.c`, program-specific
+overrides in the corresponding C file, and shell options in `src/ss-nat`.
+Each entry has an AsciiDoc term such as `--mtu <MTU>::` followed by its description.
+The generator checks option coverage and argument arity across platform variants;
+describe platform or feature restrictions in the comment. Cipher lists come from
+the C cipher tables. Keep explanatory sections and examples in `doc/*.asciidoc`.
+
+After changing a parser or its documentation comments, regenerate the checked-in
+pages and run the generator tests:
+
+```sh
+python3 scripts/gen_cli_docs.py
+python3 scripts/gen_cli_docs.py --check
+python3 -m unittest discover -s tests -p test_gen_cli_docs.py
+```
+
+To render the manuals, install Python 3, AsciiDoc, and xmlto, then run:
+
+```sh
+cmake -S . -B build-docs -DWITH_DOC_MAN=ON -DWITH_DOC_HTML=ON
+cmake --build build-docs --target doc-man doc-html --parallel
+```
+
+The build generates pages in the build directory without modifying source files
+or executing target binaries, so it also works when cross-compiling. CI checks
+that committed pages are current and renders both man and HTML output.
+
 ## Pull requests
 
 Open your pull request against `master`. Explain the problem, what changes for

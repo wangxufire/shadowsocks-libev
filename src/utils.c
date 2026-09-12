@@ -317,6 +317,162 @@ ss_is_ipv6addr(const char *addr)
     return strcmp(addr, ":") > 0;
 }
 
+/* CLI_DOC
+-s <server_host>::
+Set the server's hostname or IP.
+
+-p <server_port>::
+Set the server's port number.
+
+-l <local_port>::
+Set the local port number.
+
+-k <password>::
+Set the password. The server and the client should use the same password.
+
+--password <password>::
+Set the password. The server and the client should use the same password.
+
+--key <key_in_base64>::
+Set the key directly. The key should be encoded with URL-safe Base64.
+
+--server-url <ss_url>::
+Take the server address, port, cipher, password and any SIP003 plugin
+from a single 'ss://' URL, as produced by most clients and by
+*shadowsocks-rust*'s `ssurl`. Both the SIP002 form
+('ss://base64(method:password)@host:port/?plugin=...#tag') and the older
+'ss://base64(method:password@host:port)' form are accepted. Options given
+later on the command line override the values taken from the URL.
+
+-m <encrypt_method>::
+Set the cipher. The default is 'chacha20-ietf-poly1305'.
++
+AEAD cipher names from the source (availability depends on the build):
+{cli-aead-ciphers}.
++
+Legacy stream cipher names recognized by the source (disabled in minimal builds;
+some require backend support): {cli-stream-ciphers}.
++
+The '2022-blake3-*' ciphers implement Shadowsocks 2022 (SIP022). They require
+a base64-encoded pre-shared key supplied with *-k*: 16 bytes for
+2022-blake3-aes-128-gcm and 32 bytes for the other 2022 ciphers.
+Generate a 32-byte key with `openssl rand -base64 32`.
+Passwords are not stretched into keys for these ciphers.
+
+-a <user_name>::
+Run as a specific user.
+
+-f <pid_file>::
+Start shadowsocks as a daemon with specific pid file.
+
+-t <timeout>::
+Set the socket timeout in seconds. The default value is 60.
+
+-c <config_file>::
+Use a configuration file.
++
+Refer to `shadowsocks-c`(8) 'CONFIG FILE' section for more details.
+
+-n <number>::
+Specify the maximum number of open files. Requires a platform with setrlimit support.
+
+-i <interface>::
+Send outbound traffic through the specified network interface where supported by the platform.
+
+-b <local_address>::
+Specify the local address to use while this client is making outbound
+connections to the server.
+
+-u::
+Enable UDP relay.
+
+-U::
+Enable UDP relay and disable TCP relay.
+
+-6::
+Resolve hostname to IPv6 address first.
+
+--fast-open::
+Enable TCP Fast Open where supported by the operating system.
+
+--reuse-port::
+Enable port reuse where supported by the operating system.
+
+--acl <acl_config>::
+Enable ACL (Access Control List) and specify config file.
+
+--mtu <MTU>::
+Specify the MTU of your network interface.
+
+--mptcp::
+Enable Multipath TCP.
++
+Only available with MPTCP enabled Linux kernel.
+
+--no-delay::
+Enable TCP_NODELAY.
+
+--tcp-incoming-sndbuf <size>::
+Set TCP send buffer size for incoming connections.
+
+--tcp-incoming-rcvbuf <size>::
+Set TCP receive buffer size for incoming connections.
+
+--tcp-outgoing-sndbuf <size>::
+Set TCP send buffer size for outgoing connections.
+
+--tcp-outgoing-rcvbuf <size>::
+Set TCP receive buffer size for outgoing connections.
+
+--plugin <plugin_name>::
+Enable SIP003 plugin. (Experimental)
+
+--plugin-opts <plugin_options>::
+Set SIP003 plugin options. (Experimental)
+
+-v::
+Enable verbose mode.
+
+-h::
+Print help message.
+
+--help::
+Print help message.
+
+-A::
+Deprecated one-time authentication option. Exits with an error; use AEAD ciphers instead.
+
+-S <path>::
+Android only: UNIX socket path for traffic statistics.
+
+-V::
+Android only: enable VPN socket protection.
+
+-L <addr:port>::
+Destination server address and port for local port forwarding.
+
+-T::
+Use TPROXY instead of REDIRECT for TCP traffic. Requires Linux TPROXY support.
+
+-d <addr>::
+Configure name servers for the internal c-ares DNS resolver. By default it uses the system resolver configuration.
+
+-D <path>::
+Set the working directory of ss-manager.
+
+--workdir <path>::
+Set the working directory of ss-manager (alias for *-D*).
+
+--manager-address <address>::
+Set the manager control address: a UNIX domain socket path or an IP address and port.
+
+--executable <path>::
+Set the executable path of ss-server used by ss-manager.
+
+--nftables-sets <sets>::
+Linux builds with USE_NFTABLES only: add malicious IP addresses to nftables sets. Format: `[<table1>:]<set1>[,[<table2>:]<set2>...]`.
+*/
+
 void
 usage()
 {

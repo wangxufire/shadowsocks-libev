@@ -145,7 +145,7 @@ client mode and build options. Existing Snap packages still use the
 The default build uses pinned sources included in this repository. It needs a
 C11 compiler, CMake 3.20+, and Make or Ninja. No Git submodules, dependency
 package installations, or network access are needed for configuration/build.
-Python is used only by integration tests; documentation generation is optional.
+Python is used by integration tests and optional documentation generation.
 
 ```sh
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
@@ -156,6 +156,10 @@ cmake --install build --prefix /your/install/prefix
 
 Programs are in `build/bin/`. Bundled binaries link to platform runtime
 libraries; they do not require separately installed third-party libraries.
+
+Man pages and HTML documentation derive their CLI sections from the source
+option parsers. See [the documentation workflow](CONTRIBUTION.md#cli-and-manual-documentation)
+for regeneration and rendering commands.
 
 For a smaller build, use `-DSS_MINIMAL=ON`. It excludes PCRE2 regex, plugin
 subprocesses, the manager, and legacy stream ciphers. Minimal ACLs support

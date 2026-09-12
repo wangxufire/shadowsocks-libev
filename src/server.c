@@ -1838,6 +1838,19 @@ main(int argc, char **argv)
     memset(&local_addr_v4, 0, sizeof(struct sockaddr_storage));
     memset(&local_addr_v6, 0, sizeof(struct sockaddr_storage));
 
+    /* CLI_DOC
+-s <server_host>::
+Set a server listening hostname or IP address. May be repeated.
+
+-l <local_port>::
+Accepted for compatibility but ignored by this program; it does not configure a local listener.
+
+-p <server_port>::
+Set the server listening port.
+
+-b <local_address>::
+Set the local address for outbound connections to destination servers.
+    */
     static struct option long_options[] = {
         { "fast-open",       no_argument,       NULL, GETOPT_VAL_FAST_OPEN   },
         { "reuse-port",      no_argument,       NULL, GETOPT_VAL_REUSE_PORT  },
