@@ -75,35 +75,39 @@ notices.
 
 ## CLI and manual documentation
 
-The SYNOPSIS and OPTIONS sections of the manual pages are generated from the
-literal `getopt_long` declarations in `src/{local,server,tunnel,redir,manager}.c`
-and the `getopts` declaration in `src/ss-nat`. Descriptions and argument names live
-in `CLI_DOC` source comments: common C options in `src/utils.c`, program-specific
-overrides in the corresponding C file, and shell options in `src/ss-nat`.
-Each entry has an AsciiDoc term such as `--mtu <MTU>::` followed by its description.
-The generator checks option coverage and argument arity across platform variants;
-describe platform or feature restrictions in the comment. Cipher lists come from
-the C cipher tables. Keep explanatory sections and examples in `doc/*.asciidoc`.
+Doxygen 1.9.4 or newer renders HTML and man pages directly from native source
+snippets. Each CLI parser has a `cli-options` snippet containing Doxygen
+`\snippet{doc}` references to its option descriptions. Shared descriptions live
+in `src/utils.c`; command-specific descriptions live beside the parser. The
+`ss-nat` script keeps its snippets in a quoted no-op heredoc so documentation
+cannot execute shell substitutions. Cipher tables are included directly with
+Doxygen code snippets.
 
-After changing a parser or its documentation comments, regenerate the checked-in
-pages and run the generator tests:
+When adding or changing an option, update its parser, source snippet, and the
+parser's `cli-options` list. Keep argument names and platform restrictions in the
+source description. Edit narrative sections and examples in `doc/*.md`. There
+are no generated documentation files to commit.
+
+Check that documented flags and argument arity match every platform variant:
 
 ```sh
-python3 scripts/gen_cli_docs.py
-python3 scripts/gen_cli_docs.py --check
-python3 -m unittest discover -s tests -p test_gen_cli_docs.py
+python3 scripts/check_cli_docs.py
+python3 -m unittest discover -s tests -p test_cli_docs.py
 ```
 
-To render the manuals, install Python 3, AsciiDoc, and xmlto, then run:
+Install Doxygen, then render both formats:
 
 ```sh
 cmake -S . -B build-docs -DWITH_DOC_MAN=ON -DWITH_DOC_HTML=ON
 cmake --build build-docs --target doc-man doc-html --parallel
+python3 scripts/check_cli_docs.py --rendered build-docs
 ```
 
-The build generates pages in the build directory without modifying source files
-or executing target binaries, so it also works when cross-compiling. CI checks
-that committed pages are current and renders both man and HTML output.
+Open `build-docs/html/index.html` for the CLI reference. Man pages are written to
+`build-docs/man/`, retaining the six command names and the `shadowsocks-c(8)` and
+`shadowsocks-libev(8)` overview lookups. Builds read source snippets without
+executing target binaries, including when cross-compiling. Python is needed only
+for validation; Doxygen alone renders the documentation.
 
 ## Pull requests
 
@@ -114,3 +118,13 @@ requests and exclude generated build output, credentials, and local configuratio
 
 Respond to review feedback and keep the branch current with `master`. Maintainers
 will review the implementation and relevant CI results before merging.
+
+## Published documentation
+
+The `documentation` workflow builds and validates Doxygen output on pull requests.
+After a push to `master`, it publishes `build-docs/html` through GitHub Pages using
+GitHub Actions, including a downloadable `man-pages.tar.gz` archive. You can also
+run the workflow manually on `master` to redeploy.
+Deployment is limited to the canonical repository's `master` branch; pull requests
+and forks only validate the documentation. The `github-pages` environment records
+the deployed site URL and deployment history.

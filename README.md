@@ -13,6 +13,9 @@ created by [@clowwindy](https://github.com/clowwindy), and maintained by
 
 Current version: 3.3.6 | [Changelog](debian/changelog)
 
+[CLI reference and configuration guide](https://shadowsocks.github.io/shadowsocks-c/)
+are generated from the source with Doxygen and published after updates to `master`.
+
 ## Community
 
 See the [contribution guide](CONTRIBUTION.md) for development setup, testing,
@@ -145,7 +148,7 @@ client mode and build options. Existing Snap packages still use the
 The default build uses pinned sources included in this repository. It needs a
 C11 compiler, CMake 3.20+, and Make or Ninja. No Git submodules, dependency
 package installations, or network access are needed for configuration/build.
-Python is used by integration tests and optional documentation generation.
+Python is used by tests; optional documentation builds require Doxygen 1.9.4+.
 
 ```sh
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
@@ -157,9 +160,8 @@ cmake --install build --prefix /your/install/prefix
 Programs are in `build/bin/`. Bundled binaries link to platform runtime
 libraries; they do not require separately installed third-party libraries.
 
-Man pages and HTML documentation derive their CLI sections from the source
-option parsers. See [the documentation workflow](CONTRIBUTION.md#cli-and-manual-documentation)
-for regeneration and rendering commands.
+Doxygen renders man pages and HTML documentation from CLI source comments. See [the documentation workflow](CONTRIBUTION.md#cli-and-manual-documentation)
+for validation and rendering commands.
 
 For a smaller build, use `-DSS_MINIMAL=ON`. It excludes PCRE2 regex, plugin
 subprocesses, the manager, and legacy stream ciphers. Minimal ACLs support
@@ -180,7 +182,7 @@ Use `-DCMAKE_PREFIX_PATH=/opt/homebrew/opt/mbedtls@3` when needed on macOS.
 | `SS_BUILD_SHARED_LIBRARY` | `ON` | Shared embedding library |
 | `SS_MINIMAL` | `OFF` | Disable regex, plugins, manager, and legacy stream ciphers |
 | `SS_ENABLE_REGEX` / `SS_ENABLE_PLUGINS` / `SS_ENABLE_LEGACY` | `ON` | Individual compatibility features |
-| `WITH_DOC_MAN` / `WITH_DOC_HTML` | `OFF` | Generate documentation (requires asciidoc; man pages also need xmlto) |
+| `WITH_DOC_MAN` / `WITH_DOC_HTML` | `OFF` | Generate documentation (requires Doxygen 1.9.4+) |
 | `SS_INSTALL_TOOLS` | `OFF` | Install platform shell helpers |
 | `ENABLE_SANITIZERS` | `OFF` | AddressSanitizer and UndefinedBehaviorSanitizer |
 | `ENABLE_CONNMARKTOS` / `ENABLE_NFTABLES` | `OFF` | Optional Linux firewall integrations |
@@ -273,7 +275,7 @@ sudo cmake --install build
 
 Distribution packagers can install `libpcre2-dev libuv1-dev libc-ares-dev
 libmbedtls-dev libsodium-dev` and select `-DSS_DEPENDENCY_MODE=system
--DWITH_STATIC=OFF`. Documentation additionally needs asciidoc and xmlto.
+-DWITH_STATIC=OFF`. Documentation additionally needs Doxygen 1.9.4 or newer.
 
 ### FreeBSD
 #### Install

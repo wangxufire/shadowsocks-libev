@@ -1512,6 +1512,44 @@ main(int argc, char **argv)
 
     memset(remote_addr, 0, sizeof(ss_addr_t) * MAX_REMOTE_NUM);
 
+/* [cli-options]
+\snippet{doc} utils.c cli_short_f
+\snippet{doc} utils.c cli_short_s
+\snippet{doc} utils.c cli_short_p
+\snippet{doc} utils.c cli_short_l
+\snippet{doc} utils.c cli_short_k
+\snippet{doc} utils.c cli_short_t
+\snippet{doc} utils.c cli_short_m
+\snippet{doc} utils.c cli_short_i
+\snippet{doc} utils.c cli_short_c
+\snippet{doc} utils.c cli_short_b
+\snippet{doc} utils.c cli_short_a
+\snippet{doc} utils.c cli_short_n
+\snippet{doc} utils.c cli_short_S
+\snippet{doc} utils.c cli_short_h
+\snippet{doc} utils.c cli_short_u
+\snippet{doc} utils.c cli_short_U
+\snippet{doc} utils.c cli_short_v
+\snippet{doc} utils.c cli_short_V
+\snippet{doc} utils.c cli_short_6
+\snippet{doc} utils.c cli_short_A
+\snippet{doc} utils.c cli_long_reuse_port
+\snippet{doc} utils.c cli_long_tcp_incoming_sndbuf
+\snippet{doc} utils.c cli_long_tcp_incoming_rcvbuf
+\snippet{doc} utils.c cli_long_tcp_outgoing_sndbuf
+\snippet{doc} utils.c cli_long_tcp_outgoing_rcvbuf
+\snippet{doc} utils.c cli_long_fast_open
+\snippet{doc} utils.c cli_long_no_delay
+\snippet{doc} utils.c cli_long_acl
+\snippet{doc} utils.c cli_long_mtu
+\snippet{doc} utils.c cli_long_mptcp
+\snippet{doc} utils.c cli_long_plugin
+\snippet{doc} utils.c cli_long_plugin_opts
+\snippet{doc} utils.c cli_long_password
+\snippet{doc} utils.c cli_long_key
+\snippet{doc} utils.c cli_long_server_url
+\snippet{doc} utils.c cli_long_help
+[cli-options] */
     static struct option long_options[] = {
         { "reuse-port",  no_argument,       NULL, GETOPT_VAL_REUSE_PORT  },
         { "tcp-incoming-sndbuf", required_argument, NULL, GETOPT_VAL_TCP_INCOMING_SNDBUF },

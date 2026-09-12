@@ -317,161 +317,248 @@ ss_is_ipv6addr(const char *addr)
     return strcmp(addr, ":") > 0;
 }
 
-/* CLI_DOC
--s <server_host>::
+/* [cli_short_s]
+\par `-s <server_host>`
 Set the server's hostname or IP.
+[cli_short_s] */
 
--p <server_port>::
+/* [cli_short_p]
+\par `-p <server_port>`
 Set the server's port number.
+[cli_short_p] */
 
--l <local_port>::
+/* [cli_short_l]
+\par `-l <local_port>`
 Set the local port number.
+[cli_short_l] */
 
--k <password>::
+/* [cli_short_k]
+\par `-k <password>`
 Set the password. The server and the client should use the same password.
+[cli_short_k] */
 
---password <password>::
+/* [cli_long_password]
+\par `--password <password>`
 Set the password. The server and the client should use the same password.
+[cli_long_password] */
 
---key <key_in_base64>::
+/* [cli_long_key]
+\par `--key <key_in_base64>`
 Set the key directly. The key should be encoded with URL-safe Base64.
+[cli_long_key] */
 
---server-url <ss_url>::
+/* [cli_long_server_url]
+\par `--server-url <ss_url>`
 Take the server address, port, cipher, password and any SIP003 plugin
-from a single 'ss://' URL, as produced by most clients and by
+from a single `ss://` URL, as produced by most clients and by
 *shadowsocks-rust*'s `ssurl`. Both the SIP002 form
-('ss://base64(method:password)@host:port/?plugin=...#tag') and the older
-'ss://base64(method:password@host:port)' form are accepted. Options given
+(`ss://base64(method:password)@host:port/?plugin=...#tag`) and the older
+`ss://base64(method:password@host:port)` form are accepted. Options given
 later on the command line override the values taken from the URL.
+[cli_long_server_url] */
 
--m <encrypt_method>::
-Set the cipher. The default is 'chacha20-ietf-poly1305'.
-+
+/* [cli_short_m]
+\par `-m <encrypt_method>`
+Set the cipher. The default is `chacha20-ietf-poly1305`.
+
 AEAD cipher names from the source (availability depends on the build):
-{cli-aead-ciphers}.
-+
+\snippet aead.c cli-aead-ciphers
+
 Legacy stream cipher names recognized by the source (disabled in minimal builds;
-some require backend support): {cli-stream-ciphers}.
-+
-The '2022-blake3-*' ciphers implement Shadowsocks 2022 (SIP022). They require
+some require backend support):
+\snippet stream.c cli-stream-ciphers
+
+The `2022-blake3-*` ciphers implement Shadowsocks 2022 (SIP022). They require
 a base64-encoded pre-shared key supplied with *-k*: 16 bytes for
 2022-blake3-aes-128-gcm and 32 bytes for the other 2022 ciphers.
 Generate a 32-byte key with `openssl rand -base64 32`.
 Passwords are not stretched into keys for these ciphers.
+[cli_short_m] */
 
--a <user_name>::
+/* [cli_short_a]
+\par `-a <user_name>`
 Run as a specific user.
+[cli_short_a] */
 
--f <pid_file>::
+/* [cli_short_f]
+\par `-f <pid_file>`
 Start shadowsocks as a daemon with specific pid file.
+[cli_short_f] */
 
--t <timeout>::
+/* [cli_short_t]
+\par `-t <timeout>`
 Set the socket timeout in seconds. The default value is 60.
+[cli_short_t] */
 
--c <config_file>::
+/* [cli_short_c]
+\par `-c <config_file>`
 Use a configuration file.
-+
-Refer to `shadowsocks-c`(8) 'CONFIG FILE' section for more details.
 
--n <number>::
+Refer to `shadowsocks-c`(8) `CONFIG FILE` section for more details.
+[cli_short_c] */
+
+/* [cli_short_n]
+\par `-n <number>`
 Specify the maximum number of open files. Requires a platform with setrlimit support.
+[cli_short_n] */
 
--i <interface>::
+/* [cli_short_i]
+\par `-i <interface>`
 Send outbound traffic through the specified network interface where supported by the platform.
+[cli_short_i] */
 
--b <local_address>::
+/* [cli_short_b]
+\par `-b <local_address>`
 Specify the local address to use while this client is making outbound
 connections to the server.
+[cli_short_b] */
 
--u::
+/* [cli_short_u]
+\par `-u`
 Enable UDP relay.
+[cli_short_u] */
 
--U::
+/* [cli_short_U]
+\par `-U`
 Enable UDP relay and disable TCP relay.
+[cli_short_U] */
 
--6::
+/* [cli_short_6]
+\par `-6`
 Resolve hostname to IPv6 address first.
+[cli_short_6] */
 
---fast-open::
+/* [cli_long_fast_open]
+\par `--fast-open`
 Enable TCP Fast Open where supported by the operating system.
+[cli_long_fast_open] */
 
---reuse-port::
+/* [cli_long_reuse_port]
+\par `--reuse-port`
 Enable port reuse where supported by the operating system.
+[cli_long_reuse_port] */
 
---acl <acl_config>::
+/* [cli_long_acl]
+\par `--acl <acl_config>`
 Enable ACL (Access Control List) and specify config file.
+[cli_long_acl] */
 
---mtu <MTU>::
+/* [cli_long_mtu]
+\par `--mtu <MTU>`
 Specify the MTU of your network interface.
+[cli_long_mtu] */
 
---mptcp::
+/* [cli_long_mptcp]
+\par `--mptcp`
 Enable Multipath TCP.
-+
+
 Only available with MPTCP enabled Linux kernel.
+[cli_long_mptcp] */
 
---no-delay::
+/* [cli_long_no_delay]
+\par `--no-delay`
 Enable TCP_NODELAY.
+[cli_long_no_delay] */
 
---tcp-incoming-sndbuf <size>::
+/* [cli_long_tcp_incoming_sndbuf]
+\par `--tcp-incoming-sndbuf <size>`
 Set TCP send buffer size for incoming connections.
+[cli_long_tcp_incoming_sndbuf] */
 
---tcp-incoming-rcvbuf <size>::
+/* [cli_long_tcp_incoming_rcvbuf]
+\par `--tcp-incoming-rcvbuf <size>`
 Set TCP receive buffer size for incoming connections.
+[cli_long_tcp_incoming_rcvbuf] */
 
---tcp-outgoing-sndbuf <size>::
+/* [cli_long_tcp_outgoing_sndbuf]
+\par `--tcp-outgoing-sndbuf <size>`
 Set TCP send buffer size for outgoing connections.
+[cli_long_tcp_outgoing_sndbuf] */
 
---tcp-outgoing-rcvbuf <size>::
+/* [cli_long_tcp_outgoing_rcvbuf]
+\par `--tcp-outgoing-rcvbuf <size>`
 Set TCP receive buffer size for outgoing connections.
+[cli_long_tcp_outgoing_rcvbuf] */
 
---plugin <plugin_name>::
+/* [cli_long_plugin]
+\par `--plugin <plugin_name>`
 Enable SIP003 plugin. (Experimental)
+[cli_long_plugin] */
 
---plugin-opts <plugin_options>::
+/* [cli_long_plugin_opts]
+\par `--plugin-opts <plugin_options>`
 Set SIP003 plugin options. (Experimental)
+[cli_long_plugin_opts] */
 
--v::
+/* [cli_short_v]
+\par `-v`
 Enable verbose mode.
+[cli_short_v] */
 
--h::
+/* [cli_short_h]
+\par `-h`
 Print help message.
+[cli_short_h] */
 
---help::
+/* [cli_long_help]
+\par `--help`
 Print help message.
+[cli_long_help] */
 
--A::
+/* [cli_short_A]
+\par `-A`
 Deprecated one-time authentication option. Exits with an error; use AEAD ciphers instead.
+[cli_short_A] */
 
--S <path>::
+/* [cli_short_S]
+\par `-S <path>`
 Android only: UNIX socket path for traffic statistics.
+[cli_short_S] */
 
--V::
+/* [cli_short_V]
+\par `-V`
 Android only: enable VPN socket protection.
+[cli_short_V] */
 
--L <addr:port>::
+/* [cli_short_L]
+\par `-L <addr:port>`
 Destination server address and port for local port forwarding.
+[cli_short_L] */
 
--T::
+/* [cli_short_T]
+\par `-T`
 Use TPROXY instead of REDIRECT for TCP traffic. Requires Linux TPROXY support.
+[cli_short_T] */
 
--d <addr>::
+/* [cli_short_d]
+\par `-d <addr>`
 Configure name servers for the internal c-ares DNS resolver. By default it uses the system resolver configuration.
+[cli_short_d] */
 
--D <path>::
+/* [cli_short_D]
+\par `-D <path>`
 Set the working directory of ss-manager.
+[cli_short_D] */
 
---workdir <path>::
+/* [cli_long_workdir]
+\par `--workdir <path>`
 Set the working directory of ss-manager (alias for *-D*).
+[cli_long_workdir] */
 
---manager-address <address>::
+/* [cli_long_manager_address]
+\par `--manager-address <address>`
 Set the manager control address: a UNIX domain socket path or an IP address and port.
+[cli_long_manager_address] */
 
---executable <path>::
+/* [cli_long_executable]
+\par `--executable <path>`
 Set the executable path of ss-server used by ss-manager.
+[cli_long_executable] */
 
---nftables-sets <sets>::
+/* [cli_long_nftables_sets]
+\par `--nftables-sets <sets>`
 Linux builds with USE_NFTABLES only: add malicious IP addresses to nftables sets. Format: `[<table1>:]<set1>[,[<table2>:]<set2>...]`.
-*/
+[cli_long_nftables_sets] */
 
 void
 usage()
