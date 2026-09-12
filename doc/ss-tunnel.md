@@ -31,7 +31,7 @@ through the shadowsocks tunnel. Here is an example:
 
 ```
 # Forward local UDP port 5353 to 8.8.8.8:53 through the ss-server
-ss-tunnel -s example.com -p 12345 -l 5353 -k foobar -m aes-256-cfb -L 8.8.8.8:53 -u
+ss-tunnel --server example.com --server-port 12345 --listen-port 5353 --password foobar --cipher aes-256-gcm --destination 8.8.8.8:53 --udp
 
 # Then configure your system to use 127.0.0.1:5353 as the DNS server
 dig @127.0.0.1 -p 5353 www.google.com

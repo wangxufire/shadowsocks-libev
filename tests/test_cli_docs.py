@@ -27,7 +27,7 @@ class CliDocsTests(unittest.TestCase):
     def change(self, filename, old, new):
         path = self.root / filename
         source = path.read_text(encoding='utf-8')
-        self.assertIn(old, source)
+        self.assertTrue(old in source, f'Missing fixture text in {filename}')
         path.write_text(source.replace(old, new), encoding='utf-8')
 
     def test_current_documentation_matches_all_variants(self):
@@ -58,7 +58,7 @@ class CliDocsTests(unittest.TestCase):
             DOCS.check(self.root)
 
     def test_nonliteral_short_options_fail_closed(self):
-        self.change('src/local.c', '"f:s:p:l:k:t:m:i:c:b:a:n:huUv6A"', 'SHORT_OPTIONS')
+        self.change('src/local.c', '":f:s:p:l:k:t:m:i:c:b:a:n:huUv6A"', 'SHORT_OPTIONS')
         with self.assertRaisesRegex(ValueError, 'literal getopt_long'):
             DOCS.check(self.root)
 

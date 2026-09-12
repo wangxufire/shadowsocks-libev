@@ -16,6 +16,10 @@ Current version: 3.3.6 | [Changelog](debian/changelog)
 [CLI reference and configuration guide](https://shadowsocks.github.io/shadowsocks-c/)
 are generated from the source with Doxygen and published after updates to `master`.
 
+Use `--help` for grouped CLI options and `--version` for version information.
+See [CLI conventions](https://shadowsocks.github.io/shadowsocks-c/index.html#cli_conventions)
+for the long flags, short aliases, and configuration precedence.
+
 ## Community
 
 See the [contribution guide](CONTRIBUTION.md) for development setup, testing,

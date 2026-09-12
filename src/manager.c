@@ -1276,20 +1276,79 @@ main(int argc, char **argv)
 Set a server listening hostname or IP address. May be repeated.
 [cli_short_s] */
 
-/* [cli_short_l]
-\par `-l <local_port>`
-Accepted for compatibility but ignored by this program; it does not configure a local listener.
-[cli_short_l] */
-
 /* [cli_short_c]
 \par `-c <config_file>`
 Use a JSON configuration file. The "port_password" field can start multiple ss-server instances.
 [cli_short_c] */
 
+/* [cli_long_config]
+\par `--config <config_file>`
+Read JSON configuration. See the CLI conventions for precedence and default-value behavior. Short alias: `-c`.
+[cli_long_config] */
+
+/* [cli_long_cipher]
+\par `--cipher <encrypt_method>`
+Select the encryption cipher. See `-m` for supported cipher names and key requirements. Short alias: `-m`.
+[cli_long_cipher] */
+
+/* [cli_long_timeout]
+\par `--timeout <timeout>`
+Same behavior as `-t`; see that option for details. Short alias: `-t`.
+[cli_long_timeout] */
+
+/* [cli_long_user]
+\par `--user <user_name>`
+Same behavior as `-a`; see that option for details. Short alias: `-a`.
+[cli_long_user] */
+
+/* [cli_long_pid_file]
+\par `--pid-file <pid_file>`
+Same behavior as `-f`; see that option for details. Short alias: `-f`.
+[cli_long_pid_file] */
+
+/* [cli_long_nofile]
+\par `--nofile <number>`
+Same behavior as `-n`; see that option for details. Short alias: `-n`.
+[cli_long_nofile] */
+
+/* [cli_long_udp]
+\par `--udp`
+Enable both TCP and UDP relay, overriding the configured mode. Short alias: `-u`.
+[cli_long_udp] */
+
+/* [cli_long_udp_only]
+\par `--udp-only`
+Enable UDP relay only, overriding the configured mode. Short alias: `-U`.
+[cli_long_udp_only] */
+
+/* [cli_long_ipv6_first]
+\par `--ipv6-first`
+Prefer IPv6 DNS results; overrides configuration. This does not restrict connections to IPv6. Short alias: `-6`.
+[cli_long_ipv6_first] */
+
+/* [cli_long_verbose]
+\par `--verbose`
+Same behavior as `-v`; see that option for details. Short alias: `-v`.
+[cli_long_verbose] */
+
+/* [cli_long_listen_address]
+\par `--listen-address <server_host>`
+Set the listening address. Server and manager addresses may be repeated. Short alias: `-s`.
+[cli_long_listen_address] */
+
+/* [cli_long_interface]
+\par `--interface <interface>`
+Same behavior as `-i`; see that option for details. Short alias: `-i`.
+[cli_long_interface] */
+
+/* [cli_long_nameserver]
+\par `--nameserver <addr>`
+Same behavior as `-d`; see that option for details. Short alias: `-d`.
+[cli_long_nameserver] */
+
 /* [cli-options]
 \snippet{doc} utils.c cli_short_f
 \snippet{doc} manager.c cli_short_s
-\snippet{doc} manager.c cli_short_l
 \snippet{doc} utils.c cli_short_k
 \snippet{doc} utils.c cli_short_t
 \snippet{doc} utils.c cli_short_m
@@ -1305,6 +1364,22 @@ Use a JSON configuration file. The "port_password" field can start multiple ss-s
 \snippet{doc} utils.c cli_short_U
 \snippet{doc} utils.c cli_short_v
 \snippet{doc} utils.c cli_short_A
+\snippet{doc} manager.c cli_long_config
+\snippet{doc} manager.c cli_long_cipher
+\snippet{doc} manager.c cli_long_timeout
+\snippet{doc} manager.c cli_long_user
+\snippet{doc} manager.c cli_long_pid_file
+\snippet{doc} manager.c cli_long_nofile
+\snippet{doc} manager.c cli_long_udp
+\snippet{doc} manager.c cli_long_udp_only
+\snippet{doc} manager.c cli_long_ipv6_first
+\snippet{doc} manager.c cli_long_verbose
+\snippet{doc} manager.c cli_long_listen_address
+\snippet{doc} manager.c cli_long_interface
+\snippet{doc} manager.c cli_long_nameserver
+\snippet{doc} utils.c cli_long_version
+\snippet{doc} utils.c cli_long_tcp_only
+\snippet{doc} utils.c cli_long_ipv4_first
 \snippet{doc} utils.c cli_long_fast_open
 \snippet{doc} utils.c cli_long_no_delay
 \snippet{doc} utils.c cli_long_reuse_port
@@ -1319,6 +1394,22 @@ Use a JSON configuration file. The "port_password" field can start multiple ss-s
 \snippet{doc} utils.c cli_long_help
 [cli-options] */
     static struct option long_options[] = {
+        { "config", required_argument, NULL, 'c' },
+        { "cipher", required_argument, NULL, 'm' },
+        { "timeout", required_argument, NULL, 't' },
+        { "user", required_argument, NULL, 'a' },
+        { "pid-file", required_argument, NULL, 'f' },
+        { "nofile", required_argument, NULL, 'n' },
+        { "udp", no_argument, NULL, 'u' },
+        { "udp-only", no_argument, NULL, 'U' },
+        { "ipv6-first", no_argument, NULL, '6' },
+        { "verbose", no_argument, NULL, 'v' },
+        { "listen-address", required_argument, NULL, 's' },
+        { "interface", required_argument, NULL, 'i' },
+        { "nameserver", required_argument, NULL, 'd' },
+        { "version", no_argument, NULL, GETOPT_VAL_VERSION },
+        { "tcp-only", no_argument, NULL, GETOPT_VAL_TCP_ONLY },
+        { "ipv4-first", no_argument, NULL, GETOPT_VAL_IPV4_FIRST },
         { "fast-open",       no_argument,       NULL, GETOPT_VAL_FAST_OPEN   },
         { "no-delay",        no_argument,       NULL, GETOPT_VAL_NODELAY     },
         { "reuse-port",      no_argument,       NULL, GETOPT_VAL_REUSE_PORT  },
@@ -1336,13 +1427,26 @@ Use a JSON configuration file. The "port_password" field can start multiple ss-s
         { NULL,              0,                 NULL, 0                      }
     };
 
+    int mode_set = 0;
+    int ipv6first_set = 0;
     opterr = 0;
 
     USE_TTY();
 
-    while ((c = getopt_long(argc, argv, "f:s:l:k:t:m:c:i:d:a:n:D:6huUvA",
+    while ((c = getopt_long(argc, argv, ":f:s:k:t:m:c:i:d:a:n:D:6huUvA",
                             long_options, NULL)) != -1)
         switch (c) {
+        case GETOPT_VAL_VERSION:
+            cli_version();
+            exit(EXIT_SUCCESS);
+        case GETOPT_VAL_TCP_ONLY:
+            mode = TCP_ONLY;
+            mode_set = 1;
+            break;
+        case GETOPT_VAL_IPV4_FIRST:
+            ipv6first = 0;
+            ipv6first_set = 1;
+            break;
         case GETOPT_VAL_REUSE_PORT:
             reuse_port = 1;
             break;
@@ -1363,7 +1467,7 @@ Use a JSON configuration file. The "port_password" field can start multiple ss-s
             break;
         case GETOPT_VAL_MTU:
             if (ss_parse_int(optarg, 0, INT_MAX, &mtu) == -1) {
-                FATAL("invalid MTU");
+                cli_error("invalid MTU", c, NULL);
             }
             break;
         case GETOPT_VAL_PLUGIN:
@@ -1386,6 +1490,11 @@ Use a JSON configuration file. The "port_password" field can start multiple ss-s
             pid_path  = optarg;
             break;
         case 't':
+            {
+                int checked_timeout;
+                if (ss_parse_int(optarg, 1, INT_MAX, &checked_timeout) != 0)
+                    cli_error("timeout must be a positive integer", c, NULL);
+            }
             timeout = optarg;
             break;
         case 'm':
@@ -1404,12 +1513,15 @@ Use a JSON configuration file. The "port_password" field can start multiple ss-s
             user = optarg;
             break;
         case 'u':
+            mode_set = 1;
             mode = TCP_AND_UDP;
             break;
         case 'U':
+            mode_set = 1;
             mode = UDP_ONLY;
             break;
         case '6':
+            ipv6first_set = 1;
             ipv6first = 1;
             break;
         case GETOPT_VAL_WORKDIR:
@@ -1426,23 +1538,26 @@ Use a JSON configuration file. The "port_password" field can start multiple ss-s
 #ifdef HAVE_SETRLIMIT
         case 'n':
             if (ss_parse_int(optarg, 0, INT_MAX, &nofile) == -1) {
-                FATAL("invalid nofile");
+                cli_error("invalid nofile", c, NULL);
             }
             break;
 #endif
         case 'A':
-            FATAL("One time auth has been deprecated. Try AEAD ciphers instead.");
+            cli_error("one-time authentication was removed; use an AEAD cipher", 'A', NULL);
+            break;
+        case ':':
+            cli_error("missing required argument for option", optopt, argv[optind - 1]);
             break;
         case '?':
-            // The option character is not recognized.
-            LOGE("Unrecognized option: %s", optarg);
-            opterr = 1;
+            cli_error("unrecognized or invalid option", optopt, argv[optind - 1]);
+            break;
+        default:
+            cli_error("option is unsupported on this platform", c, NULL);
             break;
         }
 
-    if (opterr) {
-        usage();
-        exit(EXIT_FAILURE);
+    if (optind < argc) {
+        cli_error("unexpected positional argument", 0, NULL);
     }
 
     if (conf_path != NULL) {
@@ -1476,7 +1591,7 @@ Use a JSON configuration file. The "port_password" field can start multiple ss-s
         if (nameservers == NULL) {
             nameservers = conf->nameserver;
         }
-        if (mode == TCP_ONLY) {
+        if (!mode_set) {
             mode = conf->mode;
         }
         if (mtu == 0) {
@@ -1488,7 +1603,7 @@ Use a JSON configuration file. The "port_password" field can start multiple ss-s
         if (plugin_opts == NULL) {
             plugin_opts = conf->plugin_opts;
         }
-        if (ipv6first == 0) {
+        if (!ipv6first_set) {
             ipv6first = conf->ipv6_first;
         }
         if (workdir == NULL) {

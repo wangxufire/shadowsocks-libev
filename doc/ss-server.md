@@ -32,7 +32,7 @@ Check out the `SEE ALSO` section for the default path of config file.
 
 ```
 # Start the ss-server
-ss-server -c /etc/shadowsocks-libev/config.json
+ss-server --config /etc/shadowsocks-libev/config.json
 ```
 
 \section ss_server_incompatibility INCOMPATIBILITY
